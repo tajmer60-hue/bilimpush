@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bilim+ — демо (офлайн)</title>
+<style>
+:root {
+  --bg: #f1f3f9; --card: #ffffff; --text: #1a2233; --muted: #64748b;
+  --primary: #4263eb; --primary-dark: #364fc7; --primary-light: #edf2ff;
+  --green: #2f9e44; --green-light: #ebfbee;
+  --red: #e03131; --red-light: #fff5f5;
+  --amber: #f08c00; --amber-light: #fff9db;
+  --radius: 16px; --shadow: 0 2px 12px rgba(26,34,51,.07);
+}
+* { margin:0; padding:0; box-sizing:border-box; }
+body { font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,"Helvetica Neue",Arial,sans-serif; background:var(--bg); color:var(--text); line-height:1.55; min-height:100vh; }
+button { font-family:inherit; cursor:pointer; }
+a { color:var(--primary); text-decoration:none; }
+.header { background:linear-gradient(135deg,#4263eb 0%,#5f3dc4 100%); color:#fff; padding:14px 20px; display:flex; align-items:center; gap:14px; position:sticky; top:0; z-index:50; box-shadow:0 2px 10px rgba(66,99,235,.35); flex-wrap:wrap; }
+.header .logo { font-size:20px; font-weight:800; cursor:pointer; }
+.header .logo span { opacity:.8; font-weight:400; }
+.header nav { margin-left:auto; display:flex; gap:6px; align-items:center; }
+.nav-btn { background:rgba(255,255,255,.14); border:none; color:#fff; padding:8px 14px; border-radius:10px; font-size:14px; font-weight:600; }
+.nav-btn:hover,.nav-btn.active { background:rgba(255,255,255,.28); }
+.demo-chip { background:#ffe066; color:#7a5b00; font-size:11px; font-weight:800; padding:3px 9px; border-radius:20px; }
+.container { max-width:960px; margin:0 auto; padding:20px 16px 60px; }
+.auth-wrap { min-height:100vh; display:flex; align-items:center; justify-content:center; background:linear-gradient(160deg,#4263eb 0%,#5f3dc4 55%,#7048e8 100%); padding:20px; }
+.auth-card { background:var(--card); border-radius:22px; padding:36px 30px; width:100%; max-width:420px; box-shadow:0 20px 60px rgba(0,0,0,.28); }
+.auth-logo { text-align:center; margin-bottom:6px; font-size:44px; }
+.auth-title { text-align:center; font-size:26px; font-weight:800; color:var(--primary-dark); }
+.auth-sub { text-align:center; color:var(--muted); font-size:14px; margin-bottom:22px; }
+.field { margin-bottom:14px; }
+.field label { display:block; font-size:13px; font-weight:600; color:var(--muted); margin-bottom:5px; }
+.field input { width:100%; padding:12px 14px; border:1.5px solid #dde3ee; border-radius:11px; font-size:15px; outline:none; background:#fbfcfe; }
+.field input:focus { border-color:var(--primary); background:#fff; }
+.btn { display:inline-flex; align-items:center; justify-content:center; gap:8px; background:var(--primary); color:#fff; border:none; padding:13px 22px; border-radius:12px; font-size:15px; font-weight:700; width:100%; }
+.btn:hover { background:var(--primary-dark); }
+.btn.green { background:var(--green); }
+.btn.green:hover { background:#2b8a3e; }
+.btn.outline { background:transparent; color:var(--primary); border:2px solid var(--primary); }
+.btn.outline:hover { background:var(--primary-light); }
+.page-title { font-size:24px; font-weight:800; margin-bottom:4px; }
+.page-sub { color:var(--muted); font-size:14.5px; margin-bottom:20px; }
+.stats-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(140px,1fr)); gap:12px; margin-bottom:22px; }
+.stat-card { background:var(--card); border-radius:var(--radius); padding:16px; box-shadow:var(--shadow); text-align:center; }
+.stat-num { font-size:26px; font-weight:800; color:var(--primary); }
+.stat-label { font-size:12.5px; color:var(--muted); font-weight:600; margin-top:2px; }
+.card { background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:18px; margin-bottom:16px; }
+.card h3 { font-size:16.5px; margin-bottom:12px; display:flex; align-items:center; gap:8px; }
+.subject-progress { display:flex; align-items:center; gap:12px; padding:9px 0; border-bottom:1px solid #f0f2f8; }
+.subject-progress:last-child { border-bottom:none; }
+.subject-progress .sp-icon { font-size:22px; width:34px; text-align:center; }
+.subject-progress .sp-info { flex:1; min-width:0; }
+.subject-progress .sp-title { font-size:14px; font-weight:700; }
+.subject-progress .sp-bar { height:7px; background:var(--bg); border-radius:4px; margin-top:5px; overflow:hidden; }
+.subject-progress .sp-fill { height:100%; background:linear-gradient(90deg,#4263eb,#7048e8); border-radius:4px; }
+.subject-progress .sp-count { font-size:12px; color:var(--muted); font-weight:600; white-space:nowrap; }
+.weak-item { display:flex; align-items:center; gap:10px; padding:9px 0; border-bottom:1px solid #f0f2f8; cursor:pointer; }
+.weak-item:last-child { border-bottom:none; }
+.wi-badge { background:var(--red-light); color:var(--red); font-weight:800; font-size:12.5px; padding:4px 10px; border-radius:8px; }
+.wi-title { font-size:14px; font-weight:600; flex:1; }
+.wi-subject { font-size:12px; color:var(--muted); }
+.recent-item { display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid #f0f2f8; font-size:14px; }
+.recent-item:last-child { border-bottom:none; }
+.recent-score { font-weight:800; padding:3px 10px; border-radius:8px; font-size:12.5px; }
+.recent-score.pass { background:var(--green-light); color:var(--green); }
+.recent-score.fail { background:var(--red-light); color:var(--red); }
+.subjects-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(270px,1fr)); gap:14px; }
+.subject-card { background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px; cursor:pointer; border-left:5px solid var(--primary); transition:transform .15s; }
+.subject-card:hover { transform:translateY(-3px); }
+.subject-card .sc-icon { font-size:34px; margin-bottom:8px; }
+.subject-card .sc-title { font-size:17px; font-weight:800; margin-bottom:4px; }
+.subject-card .sc-meta { font-size:13px; color:var(--muted); }
+.subject-card .sc-bar { height:6px; background:var(--bg); border-radius:3px; margin-top:12px; overflow:hidden; }
+.subject-card .sc-fill { height:100%; border-radius:3px; background:var(--green); }
+.breadcrumbs { font-size:13.5px; color:var(--muted); margin-bottom:14px; display:flex; gap:6px; flex-wrap:wrap; }
+.section-block { margin-bottom:22px; }
+.section-title { font-size:15px; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:.6px; margin-bottom:10px; }
+.topic-item { background:var(--card); border-radius:14px; box-shadow:var(--shadow); padding:15px 17px; margin-bottom:10px; cursor:pointer; display:flex; align-items:center; gap:14px; transition:transform .12s; }
+.topic-item:hover { transform:translateX(4px); }
+.topic-status { width:42px; height:42px; border-radius:12px; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:19px; background:var(--bg); }
+.topic-status.read { background:var(--amber-light); }
+.topic-status.passed { background:var(--green-light); }
+.topic-info { flex:1; min-width:0; }
+.topic-title { font-weight:700; font-size:15px; }
+.topic-meta { font-size:12.5px; color:var(--muted); margin-top:2px; }
+.badge { font-size:11.5px; font-weight:800; padding:4px 10px; border-radius:20px; white-space:nowrap; }
+.badge.new { background:var(--bg); color:var(--muted); }
+.badge.read { background:var(--amber-light); color:var(--amber); }
+.badge.passed { background:var(--green-light); color:var(--green); }
+.badge.grade { background:var(--primary-light); color:var(--primary); }
+.theory-card { background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:26px 24px; margin-bottom:16px; }
+.theory-card h2 { font-size:21px; margin-bottom:16px; }
+.theory-content { font-size:15.2px; }
+.theory-content h3 { font-size:16.5px; margin:20px 0 8px; color:var(--primary-dark); }
+.theory-content h3:first-child { margin-top:0; }
+.theory-content p { margin-bottom:10px; }
+.theory-content ul,.theory-content ol { margin:8px 0 12px 22px; }
+.theory-content li { margin-bottom:5px; }
+.theory-content b { color:var(--primary-dark); }
+.theory-content pre { background:#2b2d42; color:#e8eaf2; padding:14px 16px; border-radius:12px; overflow-x:auto; font-size:13.5px; margin:10px 0; }
+.theory-actions { display:flex; gap:10px; flex-wrap:wrap; margin-top:8px; }
+.theory-actions .btn { width:auto; flex:1; min-width:200px; }
+.test-info { background:var(--primary-light); border-radius:12px; padding:12px 16px; font-size:13.5px; color:var(--primary-dark); margin-bottom:16px; display:flex; gap:10px; align-items:center; }
+.test-header { background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:16px 18px; margin-bottom:14px; position:sticky; top:66px; z-index:40; }
+.test-progress-bar { height:8px; background:var(--bg); border-radius:4px; overflow:hidden; margin-top:8px; }
+.test-progress-fill { height:100%; background:linear-gradient(90deg,var(--primary),#7048e8); border-radius:4px; transition:width .25s; }
+.test-progress-text { font-size:13px; color:var(--muted); font-weight:600; display:flex; justify-content:space-between; }
+.retry-banner { background:var(--amber-light); border:1px solid #ffe066; color:#946200; border-radius:12px; padding:12px 16px; font-size:13.5px; margin-bottom:14px; }
+.q-card { background:var(--card); border-radius:var(--radius); box-shadow:var(--shadow); padding:20px; margin-bottom:12px; }
+.q-num { font-size:12px; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:.5px; margin-bottom:6px; }
+.q-text { font-size:15.5px; font-weight:650; margin-bottom:14px; }
+.q-hint { font-size:12px; color:var(--muted); margin-bottom:10px; }
+.option { display:flex; align-items:center; gap:12px; padding:12px 14px; border:1.8px solid #e4e8f2; border-radius:12px; margin-bottom:8px; cursor:pointer; font-size:14.5px; user-select:none; transition:border .12s,background .12s; }
+.option:hover { border-color:#b9c4de; }
+.option.selected { border-color:var(--primary); background:var(--primary-light); }
+.option .opt-marker { width:24px; height:24px; border-radius:50%; border:2px solid #c5cde0; flex-shrink:0; display:flex; align-items:center; justify-content:center; font-size:12px; font-weight:800; color:var(--muted); background:#fff; }
+.option.selected .opt-marker { border-color:var(--primary); background:var(--primary); color:#fff; }
+.option.multi .opt-marker { border-radius:7px; }
+.submit-row { display:flex; gap:10px; margin-top:18px; }
+.submit-row .btn { flex:1; }
+.result-hero { text-align:center; padding:30px 20px; }
+.result-ring { width:150px; height:150px; margin:0 auto 16px; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; font-size:34px; font-weight:800; border:10px solid; }
+.result-ring.pass { border-color:var(--green); color:var(--green); background:var(--green-light); }
+.result-ring.fail { border-color:var(--red); color:var(--red); background:var(--red-light); }
+.result-ring small { font-size:12.5px; font-weight:600; opacity:.75; }
+.result-title { font-size:21px; font-weight:800; }
+.result-sub { color:var(--muted); font-size:14px; margin-top:4px; max-width:460px; margin-left:auto; margin-right:auto; }
+.result-actions { display:flex; gap:10px; justify-content:center; margin-top:20px; flex-wrap:wrap; }
+.result-actions .btn { width:auto; min-width:180px; }
+.review-item { border-radius:14px; padding:16px 18px; margin-bottom:10px; background:var(--card); box-shadow:var(--shadow); border-left:5px solid; }
+.review-item.ok { border-color:var(--green); }
+.review-item.bad { border-color:var(--red); }
+.review-q { font-weight:700; font-size:14.5px; margin-bottom:8px; }
+.review-answers { font-size:13.5px; margin-bottom:6px; }
+.review-answers .your { color:var(--red); font-weight:600; }
+.review-answers .your.ok { color:var(--green); }
+.review-answers .correct { color:var(--green); font-weight:700; }
+.review-exp { font-size:13px; color:var(--muted); background:var(--bg); border-radius:10px; padding:10px 12px; margin-top:8px; }
+.review-exp b { color:var(--text); }
+.empty { text-align:center; color:var(--muted); padding:40px 20px; font-size:14.5px; }
+.error-msg { background:var(--red-light); color:var(--red); padding:10px 14px; border-radius:10px; font-size:13.5px; margin-bottom:14px; }
+.crumb-link { color:var(--primary); font-weight:600; cursor:pointer; }
+[data-go],[data-action] { cursor:pointer; }
+.toast { position:fixed; bottom:24px; left:50%; transform:translateX(-50%); background:#1a2233; color:#fff; padding:12px 22px; border-radius:12px; font-size:14px; z-index:100; box-shadow:0 8px 30px rgba(0,0,0,.3); }
+@media (max-width:600px) {
+  .container { padding:14px 12px 50px; }
+  .header { padding:12px 14px; }
+  .nav-btn span.label { display:none; }
+  .theory-card { padding:20px 16px; }
+  .result-actions .btn { width:100%; }
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>window.BILIM_DATA = __BILIM_DATA__;</script>
+<script>
+"use strict";
+/* ============ Bilim+ DEMO — вся логика локально ============ */
+const TEST_SIZE = 10, PASS = 0.7;
+const $app = document.getElementById("app");
+
+/* ---------- индексация контента ---------- */
+const SUBJECTS = [];   // {id,title,icon,color,sections:[{id,title,topics:[{id,title,grade_min,grade_max,theory,questions}]}]}
+const TOPICS = {};     // id -> {topic, sectionTitle, subjectId, subjectTitle, icon, color}
+(function indexContent() {
+  let sid = 1, secid = 1, tid = 1;
+  for (const sp of window.BILIM_DATA) {
+    const subj = { id: sid++, title: sp.title, icon: sp.icon, color: sp.color, sections: [] };
+    for (const sd of (sp.sections || [])) {
+      const sec = { id: secid++, title: sd.title, topics: [] };
+      for (const td of (sd.topics || [])) {
+        const t = { id: tid++, title: td.title, grade_min: td.grade_min, grade_max: td.grade_max,
+                    theory: td.theory, questions: (td.questions || []).map(q => ({ ...q })) };
+        t.questions.forEach((q, i) => { q.id = t.id * 1000 + i; });
+        sec.topics.push(t);
+        TOPICS[t.id] = { t, sectionTitle: sec.title, subjectId: subj.id, subjectTitle: subj.title,
+                         icon: subj.icon, color: subj.color };
+      }
+      subj.sections.push(sec);
+    }
+    SUBJECTS.push(subj);
+  }
+})();
+
+/* ---------- состояние (прогресс) ---------- */
+const MEM = { v: null };
+function lsGet() { try { return localStorage.getItem("bilim_demo_v1"); } catch (e) { return MEM.v; } }
+function lsSet(v) { try { localStorage.setItem("bilim_demo_v1", v); } catch (e) { MEM.v = v; } }
+let STATE = JSON.parse(lsGet() || "null") || { name: null, read: [], attempts: [] };
+function saveState() { lsSet(JSON.stringify(STATE)); }
+
+/* ---------- утилиты ---------- */
+function esc(s) { return String(s ?? "").replace(/[&<>"']/g, c => ({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c])); }
+function pct(x) { return Math.round((x || 0) * 100); }
+function shuffle(a) { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1));[a[i], a[j]] = [a[j], a[i]]; } return a; }
+function toast(msg) { document.querySelectorAll(".toast").forEach(t => t.remove()); const el = document.createElement("div"); el.className = "toast"; el.textContent = msg; document.body.appendChild(el); setTimeout(() => el.remove(), 2600); }
+function fmtDate(iso) { const d = new Date(iso); return d.toLocaleDateString("ru-RU", { day: "numeric", month: "short" }) + " " + d.toLocaleTimeString("ru-RU", { hour: "2-digit", minute: "2-digit" }); }
+function statusBadge(st, best) {
+  if (st === "passed") return '<span class="badge passed">✓ Сдано ' + pct(best) + '%</span>';
+  if (st === "read") return '<span class="badge read">📖 Прочитано</span>';
+  return '<span class="badge new">Новое</span>';
+}
+
+/* ---------- локальный «бэкенд»: прогресс ---------- */
+function topicProgress(tid) {
+  const atts = STATE.attempts.filter(a => a.topic_id === tid && a.submitted);
+  const passed = atts.some(a => a.passed);
+  const best = atts.reduce((m, a) => Math.max(m, a.score || 0), 0);
+  const read = STATE.read.includes(tid);
+  return {
+    attempts_count: atts.length, best_score: best,
+    status: passed ? "passed" : (atts.length || read ? "read" : "new"),
+  };
+}
+function markRead(tid) { if (!STATE.read.includes(tid)) { STATE.read.push(tid); saveState(); } }
+
+/* ---------- локальный «бэкенд»: адаптивная генерация теста ---------- */
+function buildQuestionSet(topic) {
+  const pool = topic.questions.slice();
+  if (!pool.length) throw new Error("Банк вопросов пуст");
+  const byId = {}; pool.forEach(q => byId[q.id] = q);
+  const prev = STATE.attempts.filter(a => a.topic_id === topic.id && a.submitted);
+  const K = Math.min(TEST_SIZE, pool.length);
+
+  if (!prev.length) {
+    const byDiff = { 1: [], 2: [], 3: [] };
+    pool.forEach(q => (byDiff[q.difficulty] || byDiff[1]).push(q));
+    Object.values(byDiff).forEach(shuffle);
+    const picked = []; let i = 0;
+    while (picked.length < K && Object.values(byDiff).some(a => a.length)) {
+      const d = [1, 2, 3][i % 3];
+      if (byDiff[d] && byDiff[d].length) picked.push(byDiff[d].pop());
+      i++;
+    }
+    return { questions: shuffle(picked), isRetry: false, reason: null };
+  }
+
+  const wrong = new Set(), seen = new Set();
+  prev.forEach(a => (a.answers || []).forEach(an => { seen.add(an.question_id); if (!an.is_correct) wrong.add(an.question_id); }));
+  const lastIds = new Set(prev[prev.length - 1].question_ids || []);
+
+  const picked = [];
+  const wrongPool = shuffle([...wrong].filter(id => byId[id]).map(id => byId[id]));
+  const maxWrong = Math.max(1, Math.floor(K * 0.6));
+  picked.push(...wrongPool.slice(0, maxWrong));
+
+  const pickedIds = () => new Set(picked.map(q => q.id));
+  let fresh = shuffle(pool.filter(q => !seen.has(q.id) && !lastIds.has(q.id)));
+  for (const q of fresh) { if (picked.length >= K) break; picked.push(q); }
+  if (picked.length < K) {
+    const rest = shuffle(pool.filter(q => !pickedIds().has(q.id) && !lastIds.has(q.id)));
+    for (const q of rest) { if (picked.length >= K) break; picked.push(q); }
+  }
+  if (picked.length < K) {
+    const rest = shuffle(pool.filter(q => !pickedIds().has(q.id)));
+    for (const q of rest) { if (picked.length >= K) break; picked.push(q); }
+  }
+  const reason = wrongPool.length
+    ? `Прошлый тест не сдан. В новый тест включено ${Math.min(wrongPool.length, maxWrong)} вопрос(ов), где были ошибки, остальные — новые.`
+    : "Новый тест с другими вопросами из банка темы.";
+  return { questions: shuffle(picked), isRetry: true, reason };
+}
+
+function startTestLocal(tid) {
+  const topic = TOPICS[tid] && TOPICS[tid].t;
+  if (!topic) return toast("Тема не найдена");
+  markRead(tid);
+  let set; try { set = buildQuestionSet(topic); } catch (e) { return toast(e.message); }
+  const attempt = {
+    id: Date.now(), topic_id: tid,
+    question_ids: set.questions.map(q => q.id),
+    questions: set.questions,           // demo: храним сами вопросы
+    is_retry: set.isRetry, retry_reason: set.reason,
+    submitted: false, score: null, passed: null, answers: [],
+    created_at: new Date().toISOString(),
+  };
+  STATE.attempts.push(attempt); saveState();
+  TEST_STATE = { attempt, picks: {}, result: null };
+  go("#/test/" + attempt.id);
+}
+
+function isCorrect(sel, correct, type) {
+  if (type === "multiple") {
+    const a = Array.isArray(sel) ? sel.slice().sort() : (sel == null ? [] : [sel]);
+    const b = (Array.isArray(correct) ? correct : [correct]).slice().sort();
+    return a.length === b.length && a.every((v, i) => v === b[i]);
+  }
+  return sel != null && sel === correct;
+}
+
+function submitTestLocal() {
+  const { attempt } = TEST_STATE;
+  const answers = attempt.questions.map(q => ({
+    question_id: q.id, selected: TEST_STATE.picks[q.id] ?? null,
+    is_correct: isCorrect(TEST_STATE.picks[q.id] ?? null, q.correct, q.type),
+  }));
+  const unansweredQ = attempt.questions.filter(q => {
+    const s = TEST_STATE.picks[q.id];
+    return s === null || s === undefined || (Array.isArray(s) && !s.length);
+  });
+  if (unansweredQ.length) {
+    toast(`Осталось ответить: ${unansweredQ.length}`);
+    const el = document.getElementById("qcard-" + unansweredQ[0].id);
+    if (el && el.scrollIntoView) { try { el.scrollIntoView({ behavior: "smooth", block: "center" }); } catch (e) {} }
+    return;
+  }
+  const correctCount = answers.filter(a => a.is_correct).length;
+  const score = correctCount / answers.length;
+  const passed = score >= PASS;
+  Object.assign(attempt, { submitted: true, answers, score, passed });
+  saveState();
+  const need = Math.ceil(PASS * answers.length);
+  TEST_STATE.result = {
+    score, passed, total: answers.length, correct_count: correctCount, can_retry: !passed,
+    retry_hint: passed ? null : `Нужно минимум ${need} из ${answers.length} правильных ответов (70%). Разбери ошибки ниже и пройди новый тест — он будет составлен с учётом твоих слабых мест.`,
+    results: attempt.questions.map(q => {
+      const an = answers.find(a => a.question_id === q.id);
+      return { question_id: q.id, text: q.text, options: q.options, selected: an.selected, correct: q.correct, is_correct: an.is_correct, explanation: q.explanation };
+    }),
+  };
+  go("#/result/" + attempt.id);
+}
+
+/* ---------- шапка ---------- */
+function header(active) {
+  return `<div class="header">
+    <div class="logo" data-go="#/home">🎓 Bilim<span>+</span></div>
+    <span class="demo-chip">демо · офлайн</span>
+    <nav>
+      <button class="nav-btn ${active === "home" ? "active" : ""}" data-go="#/home">🏠 <span class="label">Главная</span></button>
+      <button class="nav-btn ${active === "subjects" ? "active" : ""}" data-go="#/subjects">📚 <span class="label">Предметы</span></button>
+      <button class="nav-btn" id="resetBtn" data-action="logout" title="Сбросить прогресс демо">↺</button>
+    </nav>
+  </div>`;
+}
+let _resetArmed = false;
+function logoutDemo() {
+  if (!_resetArmed) {
+    _resetArmed = true;
+    const btn = document.getElementById("resetBtn");
+    if (btn) btn.textContent = "Точно? ↺";
+    setTimeout(() => { _resetArmed = false; const b = document.getElementById("resetBtn"); if (b) b.textContent = "↺"; }, 3000);
+    return;
+  }
+  _resetArmed = false;
+  STATE = { name: null, read: [], attempts: [] }; saveState(); TEST_STATE = null;
+  go("#/login");
+}
+
+/* ---------- экраны ---------- */
+function screenAuth() {
+  $app.innerHTML = `<div class="auth-wrap"><div class="auth-card">
+    <div class="auth-logo">🎓</div><div class="auth-title">Bilim+</div>
+    <div class="auth-sub">Школьная база Казахстана: теория и адаптивные тесты по 9 предметам для 5–11 классов.<br><br><b>Демо-режим:</b> весь контент и логика тестов работают прямо в этом файле, прогресс сохраняется в браузере. В полной версии — аккаунты и сервер.</div>
+    <div class="field"><label>Как тебя зовут?</label>
+      <input id="fName" placeholder="Например, Аружан" autocomplete="off"></div>
+    <div class="error-msg" id="nameErr" style="display:none">Введи имя — минимум 2 буквы</div>
+    <button class="btn" type="button" data-action="login">Начать обучение →</button>
+  </div></div>`;
+  const nameEl = document.getElementById("fName");
+  nameEl.addEventListener("keydown", e => { if (e.key === "Enter") loginDemo(); });
+  try { nameEl.focus(); } catch (e) {}
+}
+function loginDemo() {
+  const el = document.getElementById("fName");
+  const err = document.getElementById("nameErr");
+  const name = (el && el.value || "").trim();
+  if (name.length < 2) { if (err) err.style.display = "block"; if (el) el.focus(); return; }
+  if (err) err.style.display = "none";
+  STATE.name = name; saveState();
+  go("#/home");
+}
+
+function screenHome() {
+  let passedCnt = 0, readCnt = 0, total = 0;
+  Object.keys(TOPICS).forEach(tid => {
+    total++; const p = topicProgress(+tid);
+    if (p.status === "passed") passedCnt++;
+    if (p.status !== "new") readCnt++;
+  });
+  const submitted = STATE.attempts.filter(a => a.submitted);
+  const avg = submitted.length ? submitted.reduce((s, a) => s + a.score, 0) / submitted.length : 0;
+
+  const subjRows = SUBJECTS.map(s => {
+    let t = 0, p = 0;
+    s.sections.forEach(sec => sec.topics.forEach(tp => { t++; if (topicProgress(tp.id).status === "passed") p++; }));
+    const pr = t ? Math.round(p / t * 100) : 0;
+    return `<div class="subject-progress">
+      <div class="sp-icon">${esc(s.icon)}</div>
+      <div class="sp-info"><div class="sp-title">${esc(s.title)}</div>
+      <div class="sp-bar"><div class="sp-fill" style="width:${pr}%"></div></div></div>
+      <div class="sp-count">${p}/${t} · ${pr}%</div></div>`;
+  }).join("");
+
+  const weak = Object.keys(TOPICS).map(tid => ({ tid: +tid, p: topicProgress(+tid) }))
+    .filter(x => x.p.status !== "passed" && x.p.attempts_count > 0)
+    .sort((a, b) => a.p.best_score - b.p.best_score).slice(0, 5)
+    .map(x => `<div class="weak-item" data-go="#/topic/${x.tid}">
+      <div class="wi-badge">${pct(x.p.best_score)}%</div>
+      <div class="wi-title">${esc(TOPICS[x.tid].t.title)}<div class="wi-subject">${esc(TOPICS[x.tid].subjectTitle)} · попыток: ${x.p.attempts_count}</div></div><div>→</div></div>`).join("")
+    || '<div class="empty">Пока нет несданных тестов 🎉</div>';
+
+  const recent = submitted.slice().reverse().slice(0, 10).map(a => `<div class="recent-item">
+      <span class="recent-score ${a.passed ? "pass" : "fail"}">${pct(a.score)}%</span>
+      <span style="flex:1">${esc(TOPICS[a.topic_id] ? TOPICS[a.topic_id].t.title : "—")}</span>
+      <span style="color:var(--muted);font-size:12px">${fmtDate(a.created_at)}</span></div>`).join("")
+    || '<div class="empty">Пройди первый тест!</div>';
+
+  $app.innerHTML = header("home") + `<div class="container">
+    <div class="page-title">Сәлем, ${esc(STATE.name)}! 👋</div>
+    <div class="page-sub">Твоя учебная база: читай теорию, сдавай тесты, закрывай слабые темы.</div>
+    <div class="stats-grid">
+      <div class="stat-card"><div class="stat-num">${passedCnt}<span style="font-size:15px;color:var(--muted)">/${total}</span></div><div class="stat-label">тем сдано</div></div>
+      <div class="stat-card"><div class="stat-num">${submitted.length}</div><div class="stat-label">тестов пройдено</div></div>
+      <div class="stat-card"><div class="stat-num">${pct(avg)}%</div><div class="stat-label">средний балл</div></div>
+      <div class="stat-card"><div class="stat-num">${readCnt}</div><div class="stat-label">тем изучено</div></div>
+    </div>
+    <div class="card"><h3>🔥 Слабые темы — повтори и пересдай</h3>${weak}</div>
+    <div class="card"><h3>📊 Прогресс по предметам</h3>${subjRows}</div>
+    <div class="card"><h3>🕒 Последние результаты</h3>${recent}</div>
+  </div>`;
+}
+
+function screenSubjects() {
+  const cards = SUBJECTS.map(s => {
+    let t = 0, p = 0;
+    s.sections.forEach(sec => sec.topics.forEach(tp => { t++; if (topicProgress(tp.id).status === "passed") p++; }));
+    const pr = t ? Math.round(p / t * 100) : 0;
+    return `<div class="subject-card" style="border-left-color:${esc(s.color)}" data-go="#/subject/${s.id}">
+      <div class="sc-icon">${esc(s.icon)}</div><div class="sc-title">${esc(s.title)}</div>
+      <div class="sc-meta">${s.sections.length} раздел(ов) · ${t} тем · сдано ${p}</div>
+      <div class="sc-bar"><div class="sc-fill" style="width:${pr}%"></div></div></div>`;
+  }).join("");
+  $app.innerHTML = header("subjects") + `<div class="container">
+    <div class="page-title">Предметы</div>
+    <div class="page-sub">Школьная программа Казахстана, 5–11 классы. Теория + тесты после каждой темы.</div>
+    <div class="subjects-grid">${cards}</div></div>`;
+}
+
+function screenSubject(id) {
+  const s = SUBJECTS.find(x => x.id == id);
+  if (!s) { go("#/subjects"); return; }
+  const sections = s.sections.map(sec => {
+    const items = sec.topics.map(t => {
+      const p = topicProgress(t.id);
+      return `<div class="topic-item" data-go="#/topic/${t.id}">
+        <div class="topic-status ${p.status}">${p.status === "passed" ? "✅" : p.status === "read" ? "📖" : "📘"}</div>
+        <div class="topic-info"><div class="topic-title">${esc(t.title)}</div>
+        <div class="topic-meta">${t.grade_min}–${t.grade_max} класс · вопросов в банке: ${t.questions.length}</div></div>
+        <div>${statusBadge(p.status, p.best_score)}</div></div>`;
+    }).join("");
+    return `<div class="section-block"><div class="section-title">${esc(sec.title)}</div>${items}</div>`;
+  }).join("");
+  $app.innerHTML = header("subjects") + `<div class="container">
+    <div class="breadcrumbs"><span class="crumb-link" data-go="#/subjects">Предметы</span> / <span>${esc(s.title)}</span></div>
+    <div class="page-title">${esc(s.icon)} ${esc(s.title)}</div>
+    <div class="page-sub">Выбери тему: сначала прочитай теорию, затем пройди тест. Не сдашь — соберём новый, с учётом ошибок.</div>
+    ${sections}</div>`;
+}
+
+function screenTopic(id) {
+  const meta = TOPICS[id];
+  if (!meta) { go("#/subjects"); return; }
+  const t = meta.t, p = topicProgress(t.id);
+  markRead(t.id);
+  $app.innerHTML = header("subjects") + `<div class="container">
+    <div class="breadcrumbs"><span class="crumb-link" data-go="#/subjects">Предметы</span> / <span class="crumb-link" data-go="#/subject/${meta.subjectId}">${esc(meta.subjectTitle)}</span> / <span>${esc(t.title)}</span></div>
+    <div class="test-info"><span style="font-size:20px">📝</span>
+      <div>Тест: 10 вопросов, проходной балл — <b>70%</b>. Провалишь — система соберёт <b>новый тест</b> с учётом твоих ошибок. Лучший результат: <b>${pct(p.best_score)}%</b> · попыток: ${p.attempts_count}</div></div>
+    <div class="theory-card">
+      <h2>${esc(t.title)} <span class="badge grade" style="vertical-align:middle">${t.grade_min}–${t.grade_max} класс</span></h2>
+      <div class="theory-content">${t.theory}</div>
+    </div>
+    <div class="theory-actions"><button class="btn green" data-action="start-test" data-id="${t.id}">🚀 Пройти тест</button></div>
+  </div>`;
+  scrollTop(0);
+}
+
+let TEST_STATE = null;
+function screenTest() {
+  if (!TEST_STATE || TEST_STATE.attempt.submitted) { go("#/home"); return; }
+  const { attempt } = TEST_STATE;
+  const answered = Object.keys(TEST_STATE.picks).length;
+  const topicTitle = TOPICS[attempt.topic_id] ? TOPICS[attempt.topic_id].t.title : "";
+  const qCards = attempt.questions.map((q, i) => {
+    const sel = TEST_STATE.picks[q.id];
+    const isMulti = q.type === "multiple";
+    const opts = q.options.map((opt, oi) => {
+      const selected = isMulti ? Array.isArray(sel) && sel.includes(oi) : sel === oi;
+      return `<div class="option ${isMulti ? "multi" : ""} ${selected ? "selected" : ""}" data-action="pick" data-qid="${q.id}" data-oi="${oi}" data-multi="${isMulti ? 1 : 0}">
+        <div class="opt-marker">${isMulti ? (selected ? "✓" : "") : String.fromCharCode(65 + oi)}</div><div>${esc(opt)}</div></div>`;
+    }).join("");
+    return `<div class="q-card" id="qcard-${q.id}"><div class="q-num">Вопрос ${i + 1} из ${attempt.questions.length}${isMulti ? " · несколько ответов" : ""}</div>
+      <div class="q-text">${esc(q.text)}</div>${isMulti ? '<div class="q-hint">Выбери все правильные варианты</div>' : ""}${opts}</div>`;
+  }).join("");
+  $app.innerHTML = header("") + `<div class="container">
+    <div class="test-header"><div class="test-progress-text"><span>Тест · ${esc(topicTitle)}</span><span>${answered}/${attempt.questions.length}</span></div>
+    <div class="test-progress-bar"><div class="test-progress-fill" style="width:${answered / attempt.questions.length * 100}%"></div></div></div>
+    ${attempt.is_retry ? `<div class="retry-banner">🔁 <b>Повторная попытка.</b> ${esc(attempt.retry_reason || "")}</div>` : ""}
+    ${qCards}
+    <div class="submit-row"><button class="btn" data-action="submit">Проверить ответы${answered < attempt.questions.length ? ` (${answered}/${attempt.questions.length})` : ""}</button></div>
+  </div>`;
+}
+function pickOption(qid, oi, isMulti) {
+  if (isMulti) {
+    const cur = Array.isArray(TEST_STATE.picks[qid]) ? [...TEST_STATE.picks[qid]] : [];
+    const idx = cur.indexOf(oi);
+    if (idx >= 0) cur.splice(idx, 1); else cur.push(oi);
+    TEST_STATE.picks[qid] = cur;
+  } else TEST_STATE.picks[qid] = oi;
+  const pos = window.scrollY; screenTest(); scrollTop(pos);
+}
+
+function screenResult() {
+  if (!TEST_STATE || !TEST_STATE.result) { go("#/home"); return; }
+  const res = TEST_STATE.result, topicId = TEST_STATE.attempt.topic_id;
+  const review = res.results.map((r, i) => {
+    const yourTxt = r.selected === null || (Array.isArray(r.selected) && !r.selected.length)
+      ? "нет ответа"
+      : (Array.isArray(r.selected) ? r.selected.map(x => esc(r.options[x])).join(", ") : esc(r.options[r.selected]));
+    const correctTxt = Array.isArray(r.correct) ? r.correct.map(x => esc(r.options[x])).join(", ") : esc(r.options[r.correct]);
+    return `<div class="review-item ${r.is_correct ? "ok" : "bad"}">
+      <div class="review-q">${i + 1}. ${esc(r.text)}</div>
+      <div class="review-answers">Твой ответ: <span class="your ${r.is_correct ? "ok" : ""}">${yourTxt}</span> ${r.is_correct ? "✓" : "✗"}</div>
+      ${!r.is_correct ? `<div class="review-answers">Правильный ответ: <span class="correct">${correctTxt}</span></div>` : ""}
+      ${r.explanation ? `<div class="review-exp"><b>Пояснение:</b> ${esc(r.explanation)}</div>` : ""}</div>`;
+  }).join("");
+  $app.innerHTML = header("") + `<div class="container">
+    <div class="card result-hero">
+      <div class="result-ring ${res.passed ? "pass" : "fail"}">${pct(res.score)}%<small>${res.correct_count} из ${res.total}</small></div>
+      <div class="result-title">${res.passed ? "🎉 Тест сдан!" : "😔 Тест не сдан"}</div>
+      <div class="result-sub">${res.passed ? "Отличная работа! Тема засчитана. Закрепи материал следующими темами." : esc(res.retry_hint || "")}</div>
+      <div class="result-actions">
+        ${res.passed
+          ? `<button class="btn outline" data-go="#/topic/${topicId}">К теории</button><button class="btn green" data-go="#/subjects">Дальше →</button>`
+          : `<button class="btn outline" data-go="#/topic/${topicId}">📖 Перечитать теорию</button><button class="btn" data-action="start-test" data-id="${topicId}">🔁 Пройти новый тест</button>`}
+      </div>
+    </div>
+    <div class="section-title" style="margin-top:24px">Разбор ответов</div>
+    ${review}
+    <div class="submit-row">
+      ${res.passed ? `<button class="btn outline" data-go="#/home">На главную</button>`
+        : `<button class="btn outline" data-go="#/topic/${topicId}">📖 Перечитать теорию</button><button class="btn" data-action="start-test" data-id="${topicId}">🔁 Пройти новый тест</button>`}
+    </div>
+  </div>`;
+  scrollTop(0);
+}
+
+/* ---------- роутер: полностью внутренний (без hash и форм — работает в любой песочнице) ---------- */
+let ROUTE = "#/home";
+function go(r) { ROUTE = r; render(); }
+function scrollTop(y) { try { window.scrollTo(0, y || 0); } catch (e) {} }
+
+/* единый делегированный обработчик кликов — без инлайновых onclick */
+document.addEventListener("click", function (e) {
+  const t = e.target;
+  if (!t || !t.closest) return;
+  const nav = t.closest("[data-go]");
+  if (nav) { go(nav.getAttribute("data-go")); return; }
+  const act = t.closest("[data-action]");
+  if (!act) return;
+  const a = act.getAttribute("data-action");
+  if (a === "login") loginDemo();
+  else if (a === "logout") logoutDemo();
+  else if (a === "start-test") startTestLocal(parseInt(act.getAttribute("data-id"), 10));
+  else if (a === "pick") pickOption(parseInt(act.getAttribute("data-qid"), 10),
+                                    parseInt(act.getAttribute("data-oi"), 10),
+                                    act.getAttribute("data-multi") === "1");
+  else if (a === "submit") submitTestLocal();
+});
+
+function render() {
+  if (!STATE.name && ROUTE !== "#/login") ROUTE = "#/login";
+  if (STATE.name && ROUTE === "#/login") ROUTE = "#/home";
+  const hash = ROUTE;
+  if (hash === "#/login") return screenAuth();
+  if (hash === "#/home") return screenHome();
+  if (hash === "#/subjects") return screenSubjects();
+  if (hash.startsWith("#/subject/")) return screenSubject(hash.split("/")[2]);
+  if (hash.startsWith("#/topic/")) return screenTopic(hash.split("/")[2]);
+  if (hash.startsWith("#/test/")) return screenTest();
+  if (hash.startsWith("#/result/")) return screenResult();
+  ROUTE = "#/home"; return screenHome();
+}
+render();
+</script>
+</body>
+</html>
